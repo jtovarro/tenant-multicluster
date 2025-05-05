@@ -23,7 +23,7 @@ spec:
         helm:
           valueFiles:
             - values.yaml
-        path: 'clusters/{{path.basename}}'
+        path: 'tenants/{{path.basename}}'
         repoURL: 'https://github.com/jtovarro/tenant-multicluster.git'
         targetRevision: main
       syncPolicy:
