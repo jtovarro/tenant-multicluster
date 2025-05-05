@@ -87,202 +87,202 @@ spec:
                         seccompProfile:
                           type: RuntimeDefault
                   restartPolicy: Always
----
-apiVersion: policy.open-cluster-management.io/v1
-kind: Policy
-metadata:
-  annotations:
-    argocd.argoproj.io/compare-options: IgnoreExtraneous
-    policy.open-cluster-management.io/categories: CM Configuration Management
-    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
-    policy.open-cluster-management.io/standards: NIST SP 800-53
-  name: default.test-policy
-  namespace: cluster-aws-1
-  labels:
-    app.kubernetes.io/instance: {{ $.Values.tenant.name }}
-    policy.open-cluster-management.io/cluster-name: cluster-aws-1
-    policy.open-cluster-management.io/cluster-namespace: cluster-aws-1
-    policy.open-cluster-management.io/root-policy: default.test-policy
-spec:
-  disabled: false
-  policy-templates:
-    - objectDefinition:
-        apiVersion: policy.open-cluster-management.io/v1
-        kind: ConfigurationPolicy
-        metadata:
-          name: policy-namespace
-        spec:
-          object-templates:
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: v1
-                kind: Namespace
-                metadata:
-                  name: {{ $.Values.tenant.name }}
+# ---
+# apiVersion: policy.open-cluster-management.io/v1
+# kind: Policy
+# metadata:
+#   annotations:
+#     argocd.argoproj.io/compare-options: IgnoreExtraneous
+#     policy.open-cluster-management.io/categories: CM Configuration Management
+#     policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+#     policy.open-cluster-management.io/standards: NIST SP 800-53
+#   name: default.test-policy
+#   namespace: cluster-aws-1
+#   labels:
+#     app.kubernetes.io/instance: {{ $.Values.tenant.name }}
+#     policy.open-cluster-management.io/cluster-name: cluster-aws-1
+#     policy.open-cluster-management.io/cluster-namespace: cluster-aws-1
+#     policy.open-cluster-management.io/root-policy: default.test-policy
+# spec:
+#   disabled: false
+#   policy-templates:
+#     - objectDefinition:
+#         apiVersion: policy.open-cluster-management.io/v1
+#         kind: ConfigurationPolicy
+#         metadata:
+#           name: policy-namespace
+#         spec:
+#           object-templates:
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: v1
+#                 kind: Namespace
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: user.openshift.io/v1
-                kind: Group
-                metadata:
-                  name: {{ $.Values.tenant.name }}
-                users:
-                  - {{ $.Values.tenant.user }}
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: user.openshift.io/v1
+#                 kind: Group
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}
+#                 users:
+#                   - {{ $.Values.tenant.user }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: rbac.authorization.k8s.io/v1
-                kind: RoleBinding
-                metadata:
-                  name: admin-binding
-                  namespace: {{ $.Values.tenant.name }}
-                roleRef:
-                  apiGroup: rbac.authorization.k8s.io
-                  kind: ClusterRole
-                  name: admin
-                subjects:
-                  - kind: Group
-                    name: {{ $.Values.tenant.name }}
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: rbac.authorization.k8s.io/v1
+#                 kind: RoleBinding
+#                 metadata:
+#                   name: admin-binding
+#                   namespace: {{ $.Values.tenant.name }}
+#                 roleRef:
+#                   apiGroup: rbac.authorization.k8s.io
+#                   kind: ClusterRole
+#                   name: admin
+#                 subjects:
+#                   - kind: Group
+#                     name: {{ $.Values.tenant.name }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: k8s.ovn.org/v1
-                kind: UserDefinedNetwork
-                metadata:
-                  name: {{ $.Values.tenant.name }}-udn
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  layer2:
-                    ipam:
-                      lifecycle: Persistent
-                    role: Primary
-                    subnets:
-                      - {{ $.Values.tenant.subnet }}
-                  topology: Layer2
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: k8s.ovn.org/v1
+#                 kind: UserDefinedNetwork
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}-udn
+#                   namespace: {{ $.Values.tenant.name }}
+#                 spec:
+#                   layer2:
+#                     ipam:
+#                       lifecycle: Persistent
+#                     role: Primary
+#                     subnets:
+#                       - {{ $.Values.tenant.subnet }}
+#                   topology: Layer2
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: v1
-                kind: Pod
-                metadata:
-                  name: testpod-{{ $.Values.tenant.name }}
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  containers:
-                    - command:
-                        - sleep
-                        - '3600'
-                      image: docker.io/appropriate/curl
-                      name: container
-                      securityContext:
-                        allowPrivilegeEscalation: false
-                        capabilities:
-                          drop:
-                            - ALL
-                        runAsNonRoot: true
-                        seccompProfile:
-                          type: RuntimeDefault
-                  restartPolicy: Always
-          remediationAction: inform
-          severity: high
----
-apiVersion: policy.open-cluster-management.io/v1
-kind: Policy
-metadata:
-  annotations:
-    argocd.argoproj.io/compare-options: IgnoreExtraneous
-    policy.open-cluster-management.io/categories: CM Configuration Management
-    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
-    policy.open-cluster-management.io/standards: NIST SP 800-53
-  name: default.test-policy
-  namespace: local-cluster
-  labels:
-    app.kubernetes.io/instance: {{ $.Values.tenant.name }}
-    policy.open-cluster-management.io/cluster-name: local-cluster
-    policy.open-cluster-management.io/cluster-namespace: local-cluster
-    policy.open-cluster-management.io/root-policy: default.test-policy
-spec:
-  disabled: false
-  policy-templates:
-    - objectDefinition:
-        apiVersion: policy.open-cluster-management.io/v1
-        kind: ConfigurationPolicy
-        metadata:
-          name: policy-namespace
-        spec:
-          object-templates:
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: v1
-                kind: Namespace
-                metadata:
-                  name: {{ $.Values.tenant.name }}
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: v1
+#                 kind: Pod
+#                 metadata:
+#                   name: testpod-{{ $.Values.tenant.name }}
+#                   namespace: {{ $.Values.tenant.name }}
+#                 spec:
+#                   containers:
+#                     - command:
+#                         - sleep
+#                         - '3600'
+#                       image: docker.io/appropriate/curl
+#                       name: container
+#                       securityContext:
+#                         allowPrivilegeEscalation: false
+#                         capabilities:
+#                           drop:
+#                             - ALL
+#                         runAsNonRoot: true
+#                         seccompProfile:
+#                           type: RuntimeDefault
+#                   restartPolicy: Always
+#           remediationAction: inform
+#           severity: high
+# ---
+# apiVersion: policy.open-cluster-management.io/v1
+# kind: Policy
+# metadata:
+#   annotations:
+#     argocd.argoproj.io/compare-options: IgnoreExtraneous
+#     policy.open-cluster-management.io/categories: CM Configuration Management
+#     policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+#     policy.open-cluster-management.io/standards: NIST SP 800-53
+#   name: default.test-policy
+#   namespace: local-cluster
+#   labels:
+#     app.kubernetes.io/instance: {{ $.Values.tenant.name }}
+#     policy.open-cluster-management.io/cluster-name: local-cluster
+#     policy.open-cluster-management.io/cluster-namespace: local-cluster
+#     policy.open-cluster-management.io/root-policy: default.test-policy
+# spec:
+#   disabled: false
+#   policy-templates:
+#     - objectDefinition:
+#         apiVersion: policy.open-cluster-management.io/v1
+#         kind: ConfigurationPolicy
+#         metadata:
+#           name: policy-namespace
+#         spec:
+#           object-templates:
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: v1
+#                 kind: Namespace
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: user.openshift.io/v1
-                kind: Group
-                metadata:
-                  name: {{ $.Values.tenant.name }}
-                users:
-                  - {{ $.Values.tenant.user }}
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: user.openshift.io/v1
+#                 kind: Group
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}
+#                 users:
+#                   - {{ $.Values.tenant.user }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: rbac.authorization.k8s.io/v1
-                kind: RoleBinding
-                metadata:
-                  name: admin-binding
-                  namespace: {{ $.Values.tenant.name }}
-                roleRef:
-                  apiGroup: rbac.authorization.k8s.io
-                  kind: ClusterRole
-                  name: admin
-                subjects:
-                  - kind: Group
-                    name: {{ $.Values.tenant.name }}
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: rbac.authorization.k8s.io/v1
+#                 kind: RoleBinding
+#                 metadata:
+#                   name: admin-binding
+#                   namespace: {{ $.Values.tenant.name }}
+#                 roleRef:
+#                   apiGroup: rbac.authorization.k8s.io
+#                   kind: ClusterRole
+#                   name: admin
+#                 subjects:
+#                   - kind: Group
+#                     name: {{ $.Values.tenant.name }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: k8s.ovn.org/v1
-                kind: UserDefinedNetwork
-                metadata:
-                  name: {{ $.Values.tenant.name }}-udn
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  layer2:
-                    ipam:
-                      lifecycle: Persistent
-                    role: Primary
-                    subnets:
-                      - {{ $.Values.tenant.subnet }}
-                  topology: Layer2
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: k8s.ovn.org/v1
+#                 kind: UserDefinedNetwork
+#                 metadata:
+#                   name: {{ $.Values.tenant.name }}-udn
+#                   namespace: {{ $.Values.tenant.name }}
+#                 spec:
+#                   layer2:
+#                     ipam:
+#                       lifecycle: Persistent
+#                     role: Primary
+#                     subnets:
+#                       - {{ $.Values.tenant.subnet }}
+#                   topology: Layer2
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: v1
-                kind: Pod
-                metadata:
-                  name: testpod-{{ $.Values.tenant.name }}
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  containers:
-                    - command:
-                        - sleep
-                        - '3600'
-                      image: docker.io/appropriate/curl
-                      name: container
-                      securityContext:
-                        allowPrivilegeEscalation: false
-                        capabilities:
-                          drop:
-                            - ALL
-                        runAsNonRoot: true
-                        seccompProfile:
-                          type: RuntimeDefault
-                  restartPolicy: Always
-          remediationAction: inform
-          severity: high
+#             - complianceType: musthave
+#               objectDefinition:
+#                 apiVersion: v1
+#                 kind: Pod
+#                 metadata:
+#                   name: testpod-{{ $.Values.tenant.name }}
+#                   namespace: {{ $.Values.tenant.name }}
+#                 spec:
+#                   containers:
+#                     - command:
+#                         - sleep
+#                         - '3600'
+#                       image: docker.io/appropriate/curl
+#                       name: container
+#                       securityContext:
+#                         allowPrivilegeEscalation: false
+#                         capabilities:
+#                           drop:
+#                             - ALL
+#                         runAsNonRoot: true
+#                         seccompProfile:
+#                           type: RuntimeDefault
+#                   restartPolicy: Always
+#           remediationAction: inform
+#           severity: high
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
