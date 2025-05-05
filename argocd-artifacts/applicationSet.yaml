@@ -1,0 +1,32 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multitenant-world
+  namespace: openshift-gitops
+spec:
+  generators:
+    - git:
+        directories:
+          - path: tenants/*
+        repoURL: 'https://github.com/jtovarro/tenant-multicluster.git'
+        revision: HEAD
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      destination:
+        namespace: '{{path.basename}}'
+        server: 'https://kubernetes.default.svc'
+      project: default
+      source:
+        helm:
+          valueFiles:
+            - values.yaml
+        path: 'clusters/{{path.basename}}'
+        repoURL: 'https://github.com/jtovarro/tenant-multicluster.git'
+        targetRevision: main
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
