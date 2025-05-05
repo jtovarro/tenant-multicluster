@@ -25,6 +25,8 @@ spec:
                 kind: Namespace
                 metadata:
                   name: {{ $.Values.tenant.name }}
+                  labels:
+                    k8s.ovn.org/primary-user-defined-network: ""
 
             - complianceType: musthave
               objectDefinition:
