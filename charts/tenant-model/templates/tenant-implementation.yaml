@@ -74,24 +74,113 @@ spec:
             - complianceType: musthave
               objectDefinition:
                 apiVersion: v1
-                kind: Pod
+                kind: ResourceQuota
                 metadata:
-                  name: testpod-{{ $.Values.tenant.name }}
+                  name: {{ $.Values.tenant.name }}-quota
                   namespace: {{ $.Values.tenant.name }}
                 spec:
-                  containers:
-                    - name: container
-                      image: docker.io/appropriate/curl
-                      command: ["sleep", "3600"]
-                      securityContext:
-                        allowPrivilegeEscalation: false
-                        capabilities:
-                          drop:
-                            - ALL
-                        runAsNonRoot: true
-                        seccompProfile:
-                          type: RuntimeDefault
-                  restartPolicy: Always
+                  hard:
+                    pods: '1'
+                    requests.cpu: '1'
+                    requests.memory: 1Gi
+                    limits.cpu: '2'
+                    limits.memory: 2Gi
+
+            - complianceType: musthave
+              objectDefinition:
+                kind: Deployment
+                apiVersion: apps/v1
+                metadata:
+                  name: testdeployment-{{ $.Values.tenant.name }}
+                  namespace: {{ $.Values.tenant.name }}
+                  annotations:
+                    deployment.kubernetes.io/revision: '1'
+                spec:
+                  replicas: 1
+                  selector:
+                    matchLabels:
+                      app: testdeployment-{{ $.Values.tenant.name }}
+                  template:
+                    metadata:
+                      creationTimestamp: null
+                      labels:
+                        app: testdeployment-{{ $.Values.tenant.name }}
+                    spec:
+                      containers:
+                        - name: container
+                          image: 'polinux/stress-ng:latest'
+                          args:
+                            - '--cpu'
+                            - '8'
+                            - '--io'
+                            - '4'
+                            - '--vm'
+                            - '2'
+                            - '--vm-bytes'
+                            - 128M
+                            - '--timeout'
+                            - 300s
+                          ports:
+                            - containerPort: 8080
+                              protocol: TCP
+                          resources: {}
+                          terminationMessagePolicy: File
+                          imagePullPolicy: Always
+                      restartPolicy: Always
+                      terminationGracePeriodSeconds: 30
+                      dnsPolicy: ClusterFirst
+                      securityContext: {}
+                      schedulerName: default-scheduler
+                  strategy:
+                    type: RollingUpdate
+                    rollingUpdate:
+                      maxUnavailable: 25%
+                      maxSurge: 25%
+                  revisionHistoryLimit: 10
+                  progressDeadlineSeconds: 600
+
+            - complianceType: musthave
+              objectDefinition:
+                kind: HorizontalPodAutoscaler
+                apiVersion: autoscaling/v2
+                metadata:
+                  name: hpa-{{ $.Values.tenant.name }}
+                  namespace: {{ $.Values.tenant.name }}
+                spec:
+                  scaleTargetRef:
+                    kind: Deployment
+                    name: testdeployment-{{ $.Values.tenant.name }}
+                    apiVersion: apps/v1
+                  minReplicas: 1
+                  maxReplicas: 3
+                  metrics:
+                    - type: Resource
+                      resource:
+                        name: memory
+                        target:
+                          type: AverageValue
+                          averageValue: 250Mi
+                  behavior:
+                    scaleUp:
+                      stabilizationWindowSeconds: 60
+                      selectPolicy: Max
+                      policies:
+                        - type: Pods
+                          value: 4
+                          periodSeconds: 15
+                        - type: Percent
+                          value: 100
+                          periodSeconds: 15
+                    scaleDown:
+                      stabilizationWindowSeconds: 120
+                      selectPolicy: Max
+                      policies:
+                        - type: Pods
+                          value: 4
+                          periodSeconds: 60
+                        - type: Percent
+                          value: 10
+                          periodSeconds: 60
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
