@@ -36,7 +36,9 @@ spec:
                 metadata:
                   name: {{ $.Values.tenant.name }}
                 users:
-                  - {{ $.Values.tenant.user }}
+                {{- range .Values.tenant.users }}
+                  - {{ . }}
+                {{- end }}
 
             - complianceType: musthave
               objectDefinition:
