@@ -80,11 +80,11 @@ spec:
                   namespace: {{ $.Values.tenant.name }}
                 spec:
                   hard:
-                    pods: '1'
-                    requests.cpu: '1'
-                    requests.memory: 1Gi
-                    limits.cpu: '2'
-                    limits.memory: 2Gi
+                    pods: '3'
+                    requests.cpu: '2'
+                    requests.memory: 2Gi
+                    limits.cpu: '4'
+                    limits.memory: 4Gi
 
             - complianceType: musthave
               objectDefinition:
