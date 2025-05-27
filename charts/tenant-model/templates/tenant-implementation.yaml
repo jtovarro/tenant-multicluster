@@ -165,7 +165,7 @@ metadata:
   namespace: default
 spec:
   clusterSets:
-    - aws-tenant
+    - redhat
   tolerations:
     - key: cluster.open-cluster-management.io/unreachable
       operator: Exists
