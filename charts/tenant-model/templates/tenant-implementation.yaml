@@ -26,8 +26,8 @@ spec:
                 kind: Namespace
                 metadata:
                   name: {{ $.Values.tenant.name }}
-                  labels:
-                    k8s.ovn.org/primary-user-defined-network: ""
+                  # labels:
+                  #   k8s.ovn.org/primary-user-defined-network: ""
 
             - complianceType: musthave
               objectDefinition:
@@ -55,21 +55,21 @@ spec:
                   - kind: Group
                     name: {{ $.Values.tenant.name }}
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: k8s.ovn.org/v1
-                kind: UserDefinedNetwork
-                metadata:
-                  name: {{ $.Values.tenant.name }}-udn
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  layer2:
-                    ipam:
-                      lifecycle: Persistent
-                    role: Primary
-                    subnets:
-                      - {{ $.Values.tenant.subnet }}
-                  topology: Layer2
+            # - complianceType: musthave
+            #   objectDefinition:
+            #     apiVersion: k8s.ovn.org/v1
+            #     kind: UserDefinedNetwork
+            #     metadata:
+            #       name: {{ $.Values.tenant.name }}-udn
+            #       namespace: {{ $.Values.tenant.name }}
+            #     spec:
+            #       layer2:
+            #         ipam:
+            #           lifecycle: Persistent
+            #         role: Primary
+            #         subnets:
+            #           - {{ $.Values.tenant.subnet }}
+            #       topology: Layer2
 
             - complianceType: musthave
               objectDefinition:
@@ -86,77 +86,77 @@ spec:
                     limits.cpu: '4'
                     limits.memory: 4Gi
 
-            - complianceType: musthave
-              objectDefinition:
-                apiVersion: apps/v1
-                kind: Deployment
-                metadata:
-                  name: testdeployment-{{ $.Values.tenant.name }}
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  replicas: 1
-                  selector:
-                    matchLabels:
-                      app: testdeployment-{{ $.Values.tenant.name }}
-                  template:
-                    metadata:
-                      labels:
-                        app: testdeployment-{{ $.Values.tenant.name }}
-                    spec:
-                      containers:
-                        - name: container-{{ $.Values.tenant.name }}
-                          image: docker.io/appropriate/curl
-                          command: ["sleep", "3600"]
-                          resources:
-                            requests:
-                              cpu: "100m"
-                              memory: "64Mi"
-                            limits:
-                              cpu: "200m"
-                              memory: "128Mi"
+            # - complianceType: musthave
+            #   objectDefinition:
+            #     apiVersion: apps/v1
+            #     kind: Deployment
+            #     metadata:
+            #       name: testdeployment-{{ $.Values.tenant.name }}
+            #       namespace: {{ $.Values.tenant.name }}
+            #     spec:
+            #       replicas: 1
+            #       selector:
+            #         matchLabels:
+            #           app: testdeployment-{{ $.Values.tenant.name }}
+            #       template:
+            #         metadata:
+            #           labels:
+            #             app: testdeployment-{{ $.Values.tenant.name }}
+            #         spec:
+            #           containers:
+            #             - name: container-{{ $.Values.tenant.name }}
+            #               image: docker.io/appropriate/curl
+            #               command: ["sleep", "3600"]
+            #               resources:
+            #                 requests:
+            #                   cpu: "100m"
+            #                   memory: "64Mi"
+            #                 limits:
+            #                   cpu: "200m"
+            #                   memory: "128Mi"
 
-            - complianceType: musthave
-              objectDefinition:
-                kind: HorizontalPodAutoscaler
-                apiVersion: autoscaling/v2
-                metadata:
-                  name: hpa-{{ $.Values.tenant.name }}
-                  namespace: {{ $.Values.tenant.name }}
-                spec:
-                  scaleTargetRef:
-                    kind: Deployment
-                    name: testdeployment-{{ $.Values.tenant.name }}
-                    apiVersion: apps/v1
-                  minReplicas: 1
-                  maxReplicas: 3
-                  metrics:
-                    - type: Resource
-                      resource:
-                        name: memory
-                        target:
-                          type: AverageValue
-                          averageValue: 250Mi
-                  behavior:
-                    scaleUp:
-                      stabilizationWindowSeconds: 60
-                      selectPolicy: Max
-                      policies:
-                        - type: Pods
-                          value: 4
-                          periodSeconds: 15
-                        - type: Percent
-                          value: 100
-                          periodSeconds: 15
-                    scaleDown:
-                      stabilizationWindowSeconds: 120
-                      selectPolicy: Max
-                      policies:
-                        - type: Pods
-                          value: 4
-                          periodSeconds: 60
-                        - type: Percent
-                          value: 10
-                          periodSeconds: 60
+            # - complianceType: musthave
+            #   objectDefinition:
+            #     kind: HorizontalPodAutoscaler
+            #     apiVersion: autoscaling/v2
+            #     metadata:
+            #       name: hpa-{{ $.Values.tenant.name }}
+            #       namespace: {{ $.Values.tenant.name }}
+            #     spec:
+            #       scaleTargetRef:
+            #         kind: Deployment
+            #         name: testdeployment-{{ $.Values.tenant.name }}
+            #         apiVersion: apps/v1
+            #       minReplicas: 1
+            #       maxReplicas: 3
+            #       metrics:
+            #         - type: Resource
+            #           resource:
+            #             name: memory
+            #             target:
+            #               type: AverageValue
+            #               averageValue: 250Mi
+            #       behavior:
+            #         scaleUp:
+            #           stabilizationWindowSeconds: 60
+            #           selectPolicy: Max
+            #           policies:
+            #             - type: Pods
+            #               value: 4
+            #               periodSeconds: 15
+            #             - type: Percent
+            #               value: 100
+            #               periodSeconds: 15
+            #         scaleDown:
+            #           stabilizationWindowSeconds: 120
+            #           selectPolicy: Max
+            #           policies:
+            #             - type: Pods
+            #               value: 4
+            #               periodSeconds: 60
+            #             - type: Percent
+            #               value: 10
+            #               periodSeconds: 60
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
