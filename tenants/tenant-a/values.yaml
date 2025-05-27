@@ -1,6 +1,6 @@
 tenant-model:
   tenant:
-    name: tenant-a
+    name: tst-06
     subnet: 10.0.0.0/24
     users:
       - user1-a
