@@ -182,6 +182,6 @@ placementRef:
   apiGroup: cluster.open-cluster-management.io
   kind: Placement
 subjects:
-  - name: test-policy
+  - name: multitenant-policy
     apiGroup: policy.open-cluster-management.io
     kind: Policy
