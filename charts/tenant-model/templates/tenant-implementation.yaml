@@ -2,7 +2,7 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: multitenant-policy
-  namespace: tst-06-a
+  namespace: openshift-gitops
   annotations:
     policy.open-cluster-management.io/categories: CM Configuration Management
     policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
@@ -162,7 +162,7 @@ apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
   name: test-policy-placement
-  namespace: tst-06-a
+  namespace: openshift-gitops
 spec:
   clusterSets:
     - redhat
@@ -176,7 +176,7 @@ apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
   name: test-policy-placement
-  namespace: tst-06-a
+  namespace: openshift-gitops
 placementRef:
   name: test-policy-placement
   apiGroup: cluster.open-cluster-management.io
